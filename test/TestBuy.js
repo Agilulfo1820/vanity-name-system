@@ -2,8 +2,9 @@ const VanityNameController = artifacts.require('VanityNameController')
 const exceptionHelper = require("./helpers/exceptionsHelpers.js")
 const contractHelper = require('./helpers/contractHelpers.js')
 const {ethers} = require("ethers")
+require('dotenv').config()
 
-const SUBSCRIPTION_PERIOD = 20 * 1000
+const SUBSCRIPTION_PERIOD_DEV = process.env.SUBSCRIPTION_PERIOD_DEV
 
 contract('Buy Vanity Name', (accounts) => {
     let vanityNameController = null
@@ -59,8 +60,8 @@ contract('Buy Vanity Name', (accounts) => {
         assert.equal(false, isAvailable)
 
         //Wait until the renewal ends
-        console.log('Waiting for vanity name to expire (~15seconds)...')
-        await contractHelper.sleep(SUBSCRIPTION_PERIOD)
+        console.log('Waiting for vanity name to expire (you can set this period in .env)...')
+        await contractHelper.sleep(SUBSCRIPTION_PERIOD_DEV)
 
         const user2 = accounts[2]
         const tx = await vanityNameController.buy(name, {from: user2, value: fee.toString()})

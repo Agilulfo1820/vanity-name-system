@@ -1,6 +1,9 @@
 const VanityNameController = artifacts.require('VanityNameController')
 const exceptionHelper = require("./helpers/exceptionsHelpers.js")
 const contractHelper = require('./helpers/contractHelpers.js')
+require('dotenv').config()
+
+const SUBSCRIPTION_PERIOD_DEV = process.env.SUBSCRIPTION_PERIOD_DEV
 
 contract('Withdraw', (accounts) => {
     let vanityNameController = null
@@ -44,8 +47,8 @@ contract('Withdraw', (accounts) => {
         const startingStakedBalance = await vanityNameController.getTotalStakedAmount(user)
 
         //let name expire
-        console.log('Waiting for vanity name to expire (~15 seconds)...')
-        await contractHelper.sleep(12000)
+        console.log('Waiting for vanity name to expire (you can set this period in .env)...')
+        await contractHelper.sleep(SUBSCRIPTION_PERIOD_DEV)
         const tx = await vanityNameController.withdrawFeeFrom(name, {from: user})
         const event = contractHelper.getEventFromTransaction(tx)
 

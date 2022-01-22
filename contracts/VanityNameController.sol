@@ -13,7 +13,7 @@ contract VanityNameController {
 
     /** Data Structures and values **/
     uint256 internal constant FEE_AMOUNT_IN_WEI = 10000000000000000;
-    uint256 internal constant SUBSCRIPTION_PERIOD = 10 seconds;
+    uint256 internal constant SUBSCRIPTION_PERIOD = 5 seconds;
 
     struct VanityName {
         uint256 id;
@@ -34,6 +34,7 @@ contract VanityNameController {
     /** Events **/
     event NewBuy(string vanityName, address newOwner, uint256 expiresAt, uint256 fee);
     event FeesWithdrawn(string vanityName, address user, uint256 amount);
+    event VanityNameRenewed(string vanityName, address owner, uint256 expiresAt);
 
     /** Internal functions and modifiers **/
     function _exists(string memory vanityName) internal view returns (bool) {
@@ -108,6 +109,17 @@ contract VanityNameController {
         emit FeesWithdrawn(vanityName, msg.sender, fee);
     }
 
+    function renew(string memory nameToRenew) public payable {
+        require(ownerOf(nameToRenew) == msg.sender, "VanityNameController: you must be the owner of the vanity name");
+
+        uint256 newEndTime = block.timestamp + SUBSCRIPTION_PERIOD;
+        uint256 id = vanityNameIds[nameToRenew];
+        VanityName storage vanityName = vanityNameStorage[id];
+        vanityName.expiresAt = newEndTime;
+
+        emit VanityNameRenewed(nameToRenew, msg.sender, newEndTime);
+    }
+
     /** Getters **/
     function ownerOf(string memory vanityName) public view returns (address) {
         return owners[vanityName];
@@ -126,12 +138,12 @@ contract VanityNameController {
         return vanityNameStorage;
     }
 
-    function show(string memory vanityName) public view returns (VanityName memory) {
+    function get(string memory vanityName) public view returns (VanityName memory) {
         uint256 id = getId(vanityName);
         return vanityNameStorage[id];
     }
 
-    function getFee(string memory vanityName) public view returns (uint256) {
+    function getFee(string memory vanityName) public pure returns (uint256) {
         return bytes(vanityName).length * FEE_AMOUNT_IN_WEI;
     }
 

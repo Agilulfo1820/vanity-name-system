@@ -2,8 +2,6 @@ const VanityNameController = artifacts.require('VanityNameController')
 const exceptionHelper = require("./helpers/exceptionsHelpers.js")
 const contractHelper = require('./helpers/contractHelpers.js')
 
-const SUBSCRIPTION_PERIOD = 3*60*1000; //1:30 minutes
-
 contract('Getters', (accounts) => {
     const vanityNameForGetter = 'checkAvailabilityName'
     let vanityNameController = null
@@ -20,7 +18,6 @@ contract('Getters', (accounts) => {
         let isAvailable = await vanityNameController.checkAvailability(vanityNameForGetter)
         assert.equal(true, isAvailable)
 
-        // 'test' vanity name was bought in the previous test, so it should not be available
         const user = accounts[1]
         const fee = await vanityNameController.getFee(vanityNameForGetter)
         await vanityNameController.buy(vanityNameForGetter, {from: user, value: fee.toString()})
