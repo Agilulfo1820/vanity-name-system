@@ -11,24 +11,23 @@ contract VanityNameController {
     using Strings for uint256;
     using Counters for Counters.Counter;
 
-    /** Constants **/
+    /** Data Structures and values **/
     uint256 internal constant FEE_AMOUNT_IN_WEI = 10000000000000000;
     uint256 internal constant SUBSCRIPTION_PERIOD = 3 minutes;
 
-    /** Data Structures and values **/
     struct VanityName {
         uint256 id;
         string name;
-//        uint256 lockedAmount;
         uint256 expiresAt;
     }
 
     VanityName[] vanityNameStorage;
 
-    // Mapping from vanity name to owner address
+    // Mappings
     mapping(string => address) owners;
     mapping(string => uint256) vanityNameIds;
     mapping(address => string[]) ownerOfNames;
+    mapping(address => uint256) totalStakedBalance;
 
     Counters.Counter counter;
 
@@ -81,9 +80,10 @@ contract VanityNameController {
         //Set owner
         owners[vanityName] = msg.sender;
         ownerOfNames[msg.sender].push(vanityName);
-        
-        //Lock fee until newEndTime
-        
+
+        //Lock fee
+        totalStakedBalance[msg.sender] = totalStakedBalance[msg.sender] + msg.value;
+
 
         emit NewBuy(vanityName, msg.sender, newEndTime, fee);
     }
@@ -129,5 +129,9 @@ contract VanityNameController {
 
     function getVanityNameById(uint256 id) public view returns (VanityName memory) {
         return vanityNameStorage[id];
+    }
+
+    function getTotalStakedAmount(address user) public view returns (uint256) {
+        return totalStakedBalance[user];
     }
 }

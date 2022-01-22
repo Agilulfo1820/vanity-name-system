@@ -1,8 +1,9 @@
 const VanityNameController = artifacts.require('VanityNameController')
 const exceptionHelper = require("./helpers/exceptionsHelpers.js")
 const contractHelper = require('./helpers/contractHelpers.js')
+const {ethers} = require("ethers")
 
-const SUBSCRIPTION_PERIOD = 20*1000;
+const SUBSCRIPTION_PERIOD = 20 * 1000
 
 contract('Buy Vanity Name', (accounts) => {
     let vanityNameController = null
@@ -77,5 +78,20 @@ contract('Buy Vanity Name', (accounts) => {
         // assert.equal(name, event.vanityName)
         // assert.exists(event.expiresAt.toString())
         // assert.exists(event.fee.toString())
+    })
+
+    it("Fee should be successfully staked", async () => {
+        const user = accounts[3]
+        const name = 'stakeFeeTest'
+
+        const startingStakedBalance = await vanityNameController.getTotalStakedAmount(user)
+
+        //buy name
+        const fee = await vanityNameController.getFee(name)
+        await vanityNameController.buy(name, {from: user, value: fee.toString()})
+
+        const endingStakingBalance = await vanityNameController.getTotalStakedAmount(user)
+
+        assert.equal((startingStakedBalance.add(fee)).toString(), endingStakingBalance.toString())
     })
 })
