@@ -59,25 +59,17 @@ contract('Buy Vanity Name', (accounts) => {
         assert.equal(false, isAvailable)
 
         //Wait until the renewal ends
-        //TODO: remember to reactivate
+        console.log('Waiting for vanity name to expire (~15seconds)...')
+        await contractHelper.sleep(SUBSCRIPTION_PERIOD)
 
-        // console.log('Waiting 1.5 minutes for subscription to expire...')
-        // await contractHelper.sleep(SUBSCRIPTION_PERIOD)
-        //
-        // // isAvailable = await vanityNameController.checkAvailability(name)
-        // // console.log(isAvailable)
-        // // assert.equal(true, isAvailable)
-        //
-        // console.log(await vanityNameController.ownerOf(name))
-        //
-        // const user2 = accounts[2]
-        // const tx = await vanityNameController.buy(name, {from: user2, value: fee.toString()})
-        // const event = contractHelper.getEventFromTransaction(tx)
-        //
-        // assert.equal(user2, event.newOwner)
-        // assert.equal(name, event.vanityName)
-        // assert.exists(event.expiresAt.toString())
-        // assert.exists(event.fee.toString())
+        const user2 = accounts[2]
+        const tx = await vanityNameController.buy(name, {from: user2, value: fee.toString()})
+        const event = contractHelper.getEventFromTransaction(tx)
+
+        assert.equal(user2, event.newOwner)
+        assert.equal(name, event.vanityName)
+        assert.exists(event.expiresAt.toString())
+        assert.exists(event.fee.toString())
     })
 
     it("Fee should be successfully staked", async () => {
