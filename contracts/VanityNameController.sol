@@ -87,7 +87,7 @@ contract VanityNameController {
         emit NewBuy(vanityName, msg.sender, newEndTime, fee);
     }
 
-    function withdrawFeeFrom(string memory vanityName) public payable {
+    function withdrawFee(string memory vanityName) public payable {
         uint256 fee = getFee(vanityName);
 
         //require
@@ -114,7 +114,7 @@ contract VanityNameController {
         VanityName storage vanityName = vanityNameStorage[id];
         vanityName.expiresAt = newEndTime;
 
-        emit VanityNameRenewed(nameToRenew, msg.sender, vanityName.expiresAt);
+        emit VanityNameRenewed(nameToRenew, msg.sender, vanityNameStorage[id].expiresAt);
     }
 
     /** Getters **/

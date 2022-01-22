@@ -19,21 +19,21 @@ contract('Withdraw', (accounts) => {
         const fee = await vanityNameController.getFee(name)
         await vanityNameController.buy(name, {from: user, value: fee.toString()})
 
-        await exceptionHelper.catchRevert(vanityNameController.withdrawFeeFrom(name))
+        await exceptionHelper.catchRevert(vanityNameController.withdrawFee(name))
     })
 
     it("User should not be able to withdraw if name not belongs to him", async () => {
         const user = accounts[2]
         const name = 'withdrawTest1'
 
-        await exceptionHelper.catchRevert(vanityNameController.withdrawFeeFrom(name, {from: user}))
+        await exceptionHelper.catchRevert(vanityNameController.withdrawFee(name, {from: user}))
     })
 
     it("User should not be able to withdraw if name is non existing", async () => {
         const user = accounts[1]
         const name = 'withdrawTestNonexistentName'
 
-        await exceptionHelper.catchRevert(vanityNameController.withdrawFeeFrom(name, {from: user}))
+        await exceptionHelper.catchRevert(vanityNameController.withdrawFee(name, {from: user}))
     })
 
     it("User can successfully withdraw fee when name expires", async () => {
@@ -49,7 +49,7 @@ contract('Withdraw', (accounts) => {
         //let name expire
         console.log('Waiting for vanity name to expire (you can set this period in .env)...')
         await contractHelper.sleep(SUBSCRIPTION_PERIOD_DEV)
-        const tx = await vanityNameController.withdrawFeeFrom(name, {from: user})
+        const tx = await vanityNameController.withdrawFee(name, {from: user})
         const event = contractHelper.getEventFromTransaction(tx)
 
         //assert that event data is correct
