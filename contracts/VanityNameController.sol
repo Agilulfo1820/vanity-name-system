@@ -4,9 +4,8 @@ pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "./OwnableAndPausable.sol";
 
-contract VanityNameController is OwnableAndPausable {
+contract VanityNameController {
     using Address for address;
     using Strings for uint256;
 
@@ -28,17 +27,14 @@ contract VanityNameController is OwnableAndPausable {
 
     // TODO:Mi serve una roba più simile ai token di un certo brand, quindi una lista di nomi
 
-    /** Internal functions and modifiers **/
-    function _isNotPaused() internal view {
-        require(_paused == false);
-    }
+    /** Events **/
+    event NewBuy(string vanityName, address owner, uint256 endTime, uint256 fee);
+    event MessageValue(uint256 value);
 
+    /** Internal functions and modifiers **/
     function _exists(string memory vanityName) internal view returns (bool) {
         return _owners[vanityName] != address(0);
     }
-
-    /** Events **/
-    event NewVanityNameBought(string indexed vanityName, address owner, uint256 endTime);
 
     /** Smart contract functions **/
 
@@ -49,20 +45,22 @@ contract VanityNameController is OwnableAndPausable {
         uint256 timestamp = block.timestamp;
     }
 
-    function buyVanityName(string memory vanityName) public payable {
-        _isNotPaused();
+    function buy(string memory vanityName) public payable {
         require(!_exists(vanityName), "VanityNameController: vanity name already in use.");
 
         uint256 fee = getFeeFor(vanityName);
-        require(msg.value == fee, "VanityNameController: ETH sent are not enough to buy the vanity name.");
+        emit MessageValue(msg.value);
+        require(msg.value >= fee, "VanityNameController: ETH sent are not enough to buy the vanity name.");
 
         //Save new vanity name
         uint256 newEndTime = block.timestamp + 365 days;
         VanityName memory vanityNameStruct = VanityName(vanityName, newEndTime, msg.sender);
         vanityNameStorage.push(vanityNameStruct);
+
+        //Set owner
         _owners[vanityName] = msg.sender;
 
-        emit NewVanityNameBought(vanityName, msg.sender, newEndTime);
+        emit NewBuy(vanityName, msg.sender, newEndTime, fee);
     }
 
     function ownerOf(string memory vanityName) public view returns (address) {
