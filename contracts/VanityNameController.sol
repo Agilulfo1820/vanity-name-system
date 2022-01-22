@@ -13,7 +13,7 @@ contract VanityNameController {
 
     /** Data Structures and values **/
     uint256 internal constant FEE_AMOUNT_IN_WEI = 10000000000000000;
-    uint256 internal constant SUBSCRIPTION_PERIOD = 3 minutes;
+    uint256 internal constant SUBSCRIPTION_PERIOD = 10 seconds;
 
     struct VanityName {
         uint256 id;
@@ -33,19 +33,20 @@ contract VanityNameController {
 
     /** Events **/
     event NewBuy(string vanityName, address newOwner, uint256 expiresAt, uint256 fee);
+    event FeesWithdrawn(string vanityName, address user, uint256 amount);
 
     /** Internal functions and modifiers **/
     function _exists(string memory vanityName) internal view returns (bool) {
         return owners[vanityName] != address(0);
     }
 
-    function _vanityNameInUse(string memory vanityName) internal view returns (bool) {
+    function _expired(string memory vanityName) internal view returns (bool) {
         if (!_exists(vanityName)) {
-            return false;
+            return true;
         }
         uint256 id = vanityNameIds[vanityName];
 
-        return vanityNameStorage[id].expiresAt >= block.timestamp;
+        return vanityNameStorage[id].expiresAt < block.timestamp;
     }
 
     /** Smart contract functions **/
@@ -58,7 +59,7 @@ contract VanityNameController {
     }
 
     function buy(string memory vanityName) public payable {
-        require(!_vanityNameInUse(vanityName), "VanityNameController: vanity name already in use.");
+        require(_expired(vanityName), "VanityNameController: vanity name already in use.");
 
         uint256 fee = getFee(vanityName);
         require(msg.value >= fee, "VanityNameController: ETH sent are not enough to buy the vanity name.");
@@ -84,22 +85,37 @@ contract VanityNameController {
         //Lock fee
         totalStakedBalance[msg.sender] = totalStakedBalance[msg.sender] + msg.value;
 
-
         emit NewBuy(vanityName, msg.sender, newEndTime, fee);
+    }
+
+    function withdrawFeeFrom(string memory vanityName) public payable {
+        uint256 fee = getFee(vanityName);
+
+        //require
+        require(_exists(vanityName), "VanityNameController: you cannot withdraw fees for a non existing vanity name");
+        require(ownerOf(vanityName) == msg.sender, "VanityNameController: you must be the owner of the vanity name");
+        require(_expired(vanityName), "VanityNameController: subscription period must expire in order to withdraw fee");
+        require(totalStakedBalance[msg.sender] >= fee, "VanityNameController: Balance unavailable to withdraw fee");
+
+        //remove as owner of vanityName
+        owners[vanityName] = address(0);
+        //TODO:remove from belongsToMany
+
+        //send staked amount for that vanityName
+        totalStakedBalance[msg.sender] = totalStakedBalance[msg.sender] - fee;
+        payable(msg.sender).transfer(fee);
+
+        emit FeesWithdrawn(vanityName, msg.sender, fee);
     }
 
     /** Getters **/
     function ownerOf(string memory vanityName) public view returns (address) {
-        address owner = owners[vanityName];
-        require(owner != address(0), "ownerOf: owner query for nonexistent vanity name");
-        require(_vanityNameInUse(vanityName), "ownerOf: vanityName expired");
-
-        return owner;
+        return owners[vanityName];
     }
 
     function checkAvailability(string memory vanityName) public view returns (bool) {
         address owner = owners[vanityName];
-        if (owner != address(0) && _vanityNameInUse(vanityName)) {
+        if (owner != address(0) && !_expired(vanityName)) {
             return false;
         } else {
             return true;
