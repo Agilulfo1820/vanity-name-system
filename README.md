@@ -28,7 +28,7 @@ The following are the development steps:
 2. Run Ganache cli on your local machine with `ganache-cli`
 3. Test the contract with `truffle test` (**ganache-cli must be running in the background**)
 4. Deploy the smart contract with `truffle migrate --reset --network rinkeby` (if you want to use a different network declare it in truffle-config and pass that as argument instead of `rinkeby`)
-5. Verify the smart contract code on Etherscan with`truffle run verify {contractName} --network rinkeby`.  
+5. Verify the smart contract code on Etherscan with`truffle run verify VanityNameController --network rinkeby`.  
 
 To interact with the newly deployed smart contract you will need the ABI that you can find in `/build/contracts/` (search the json file with same name as your contract).
 

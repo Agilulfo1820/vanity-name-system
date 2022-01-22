@@ -1,12 +1,12 @@
-const VanityNameSystem = artifacts.require('VanityNameSystem')
+const VanityNameController = artifacts.require('VanityNameController')
 const catchRevert = require("./helpers/exceptionsHelpers.js").catchRevert
 const contractHelper = require('./helpers/contractHelpers.js')
 
-contract('VanityNameSystem Base Functions', (accounts) => {
+contract('VanityNameController Base Functions', (accounts) => {
     const owner = accounts[0]
     let vanityNameSystemContract = null
     before(async () => {
-        vanityNameSystemContract = await VanityNameSystem.deployed()
+        vanityNameSystemContract = await VanityNameController.deployed()
     })
 
     it('Owner should be able to pause and unpause contract', async () => {
@@ -21,7 +21,7 @@ contract('VanityNameSystem Base Functions', (accounts) => {
         assert.equal(false, isPaused)
     })
 
-    it('Only Owner should be able to execute VanityNameSystem base functions', async () => {
+    it('Only Owner should be able to execute VanityNameController base functions', async () => {
         await catchRevert(vanityNameSystemContract.pause({from: accounts[1]}))
         await catchRevert(vanityNameSystemContract.unpause({from: accounts[1]}))
     })

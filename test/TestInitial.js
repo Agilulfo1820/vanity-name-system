@@ -1,11 +1,11 @@
-const VanityNameSystem = artifacts.require('VanityNameSystem')
+const VanityNameController = artifacts.require('VanityNameController')
 const contractHelper = require('./helpers/contractHelpers.js')
 
 contract('Deploy GenuCardNFT', (accounts) => {
     const deployAccount = accounts[0]
     let vanityNameSystemContract = null
     before(async () => {
-        vanityNameSystemContract = await VanityNameSystem.deployed()
+        vanityNameSystemContract = await VanityNameController.deployed()
     })
 
     it('Should deploy smart contract properly', async () => {

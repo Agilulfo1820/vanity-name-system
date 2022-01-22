@@ -1,5 +1,5 @@
-const VanityNameSystem = artifacts.require("VanityNameSystem");
+const VanityNameController = artifacts.require("VanityNameController");
 
 module.exports = function(deployer) {
-  deployer.deploy(VanityNameSystem);
+  deployer.deploy(VanityNameController);
 };
