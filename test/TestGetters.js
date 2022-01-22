@@ -15,12 +15,14 @@ contract('Getters', (accounts) => {
     })
 
     it("User should be able to check if a name is available", async () => {
+        const user = accounts[1]
+
         let isAvailable = await vanityNameController.checkAvailability(vanityNameForGetter)
         assert.equal(true, isAvailable)
 
-        const user = accounts[1]
+        const salt = await contractHelper.makeCommitment(vanityNameController, vanityNameForGetter, user)
         const fee = await vanityNameController.getFee(vanityNameForGetter)
-        await vanityNameController.buy(vanityNameForGetter, {from: user, value: fee.toString()})
+        await vanityNameController.buy(vanityNameForGetter, user, salt, {from: user, value: fee.toString()})
 
         isAvailable = await vanityNameController.checkAvailability(vanityNameForGetter)
         assert.equal(false, isAvailable)
