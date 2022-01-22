@@ -11,7 +11,7 @@ contract('VanityNameController', (accounts) => {
     })
 
     it('User should be able to see fee for name', async () => {
-        const fee = await vanityNameController.getVanityNameFee('test')
+        const fee = await vanityNameController.getFee('test')
         assert.exists(fee.toString())
     })
 
@@ -19,7 +19,7 @@ contract('VanityNameController', (accounts) => {
 
     it("User should be able to buy a name", async () => {
         const user = accounts[1]
-        const fee = await vanityNameController.getVanityNameFee('test')
+        const fee = await vanityNameController.getFee('test')
 
         //create new token
         const tx = await vanityNameController.buy('test', {from: user, value: fee.toString()})
@@ -35,7 +35,7 @@ contract('VanityNameController', (accounts) => {
         const user = accounts[2]
 
         //create new token
-        const fee = await vanityNameController.getVanityNameFee('ownerOfTest-VanityName')
+        const fee = await vanityNameController.getFee('ownerOfTest-VanityName')
         await vanityNameController.buy('ownerOfTest-VanityName', {from: user, value: fee.toString()})
 
         const owner = await vanityNameController.ownerOf('ownerOfTest-VanityName')
