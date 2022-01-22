@@ -19,7 +19,8 @@ contract VanityNameController {
     struct VanityName {
         uint256 id;
         string name;
-        uint256 endTime;
+//        uint256 lockedAmount;
+        uint256 expiresAt;
     }
 
     VanityName[] vanityNameStorage;
@@ -32,7 +33,7 @@ contract VanityNameController {
     Counters.Counter counter;
 
     /** Events **/
-    event NewBuy(string vanityName, address newOwner, uint256 endTime, uint256 fee);
+    event NewBuy(string vanityName, address newOwner, uint256 expiresAt, uint256 fee);
 
     /** Internal functions and modifiers **/
     function _exists(string memory vanityName) internal view returns (bool) {
@@ -45,7 +46,7 @@ contract VanityNameController {
         }
         uint256 id = vanityNameIds[vanityName];
 
-        return vanityNameStorage[id].endTime >= block.timestamp;
+        return vanityNameStorage[id].expiresAt >= block.timestamp;
     }
 
     /** Smart contract functions **/
@@ -80,6 +81,9 @@ contract VanityNameController {
         //Set owner
         owners[vanityName] = msg.sender;
         ownerOfNames[msg.sender].push(vanityName);
+        
+        //Lock fee until newEndTime
+        
 
         emit NewBuy(vanityName, msg.sender, newEndTime, fee);
     }

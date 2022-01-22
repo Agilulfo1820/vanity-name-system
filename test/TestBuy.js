@@ -20,7 +20,7 @@ contract('Buy Vanity Name', (accounts) => {
 
         assert.equal(user, event.newOwner)
         assert.equal('test', event.vanityName)
-        assert.exists(event.endTime.toString())
+        assert.exists(event.expiresAt.toString())
         assert.exists(event.fee.toString())
     })
 
@@ -75,7 +75,7 @@ contract('Buy Vanity Name', (accounts) => {
         //
         // assert.equal(user2, event.newOwner)
         // assert.equal(name, event.vanityName)
-        // assert.exists(event.endTime.toString())
+        // assert.exists(event.expiresAt.toString())
         // assert.exists(event.fee.toString())
     })
 })
