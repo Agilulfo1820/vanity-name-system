@@ -30,11 +30,4 @@ contract('Getters', (accounts) => {
         let vanityNames = await vanityNameController.index()
         assert.exists(vanityNames)
     })
-
-    it("User should be able to list all vanity names of an address", async () => {
-        let vanityNames = await vanityNameController.getVanityNamesOf(accounts[1])
-
-        assert.exists(vanityNames)
-        assert.equal(vanityNames[0], vanityNameForGetter)
-    })
 })

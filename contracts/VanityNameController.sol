@@ -26,7 +26,6 @@ contract VanityNameController {
     // Mappings
     mapping(string => address) owners;
     mapping(string => uint256) vanityNameIds;
-    mapping(address => string[]) ownerOfNames;
     mapping(address => uint256) totalStakedBalance;
 
     Counters.Counter counter;
@@ -81,7 +80,6 @@ contract VanityNameController {
 
         //Set owner
         owners[vanityName] = msg.sender;
-        ownerOfNames[msg.sender].push(vanityName);
 
         //Lock fee
         totalStakedBalance[msg.sender] = totalStakedBalance[msg.sender] + msg.value;
@@ -100,7 +98,6 @@ contract VanityNameController {
 
         //remove as owner of vanityName
         owners[vanityName] = address(0);
-        //TODO:remove from belongsToMany
 
         //send staked amount for that vanityName
         totalStakedBalance[msg.sender] = totalStakedBalance[msg.sender] - fee;
@@ -145,10 +142,6 @@ contract VanityNameController {
 
     function getFee(string memory vanityName) public pure returns (uint256) {
         return bytes(vanityName).length * FEE_AMOUNT_IN_WEI;
-    }
-
-    function getVanityNamesOf(address userAddress) public view returns (string[] memory) {
-        return ownerOfNames[userAddress];
     }
 
     function getId(string memory vanityName) public view returns (uint256) {
