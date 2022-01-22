@@ -1,10 +1,22 @@
+# Introduction
+
+The goal of this project is to create a vanity name registering system resistant against frontrunning.
+To prevent frontrunning I choosed the [ENS way](https://docs.ens.domains/contract-api-reference/.eth-permanent-registrar/controller).
+To obtain this I devided the buy process in 2 parts: first you need to commit to buy that name, this will generate a secret hash for you,
+then you pass this hash to the `buy` function which will see if the commitment is valid.
+
+Other features are the dynamic fee, renew, search for a name, withdraw fees.
+
+Before deploying the smart contract please update the `uint256 internal constant SUBSCRIPTION_PERIOD = 5 seconds` to higher timeframe and do this change
+also inside the `.env` file. I wanted to put this inside a constructor and manage them all from the `.env` file but didn't made it in time.
+
 # Requirements to run the project
 1. NodeJS
 2. NPM
 
 # Instructions
 
-### Install the needed dependencies:
+### Install dependencies:
 ```
 npm install -g truffle
 npm install truffle-hdwallet-provider

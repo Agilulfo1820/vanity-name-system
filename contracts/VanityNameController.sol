@@ -51,7 +51,7 @@ contract VanityNameController {
     }
 
     /** Smart contract functions **/
-    function makeCommitment(string memory name, address owner, bytes32 secret) public view returns (bytes32) {
+    function makeCommitment(string memory name, address owner, bytes32 secret) public pure returns (bytes32) {
         //create new reservation
         bytes32 label = keccak256(bytes(name));
         return keccak256(abi.encodePacked(label, owner, secret));
