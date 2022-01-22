@@ -17,16 +17,14 @@ contract VanityNameController {
     struct VanityName {
         string name;
         uint256 endTime;
-        address creatorAddress;
+        address owner;
     }
 
     VanityName[] vanityNameStorage;
 
     // Mapping from vanity name to owner address
     mapping(string => address) _owners;
-    //TODO:rimetterci quello che avevo tolto, ovvero l'inverso
-
-    // TODO:Mi serve una roba più simile ai token di un certo brand, quindi una lista di nomi
+    mapping(address => string[]) _ownerOfNames;
 
     /** Events **/
     event NewBuy(string vanityName, address owner, uint256 endTime, uint256 fee);
@@ -59,6 +57,7 @@ contract VanityNameController {
 
         //Set owner
         _owners[vanityName] = msg.sender;
+        _ownerOfNames[msg.sender].push(vanityName);
 
         emit NewBuy(vanityName, msg.sender, newEndTime, fee);
     }
@@ -70,7 +69,7 @@ contract VanityNameController {
         return owner;
     }
 
-    function isAvailable(string memory vanityName) public view returns (bool) {
+    function checkAvailability(string memory vanityName) public view returns (bool) {
         address owner = _owners[vanityName];
         //TODO:Check the end_time
         if (owner != address(0)) {
@@ -86,5 +85,9 @@ contract VanityNameController {
 
     function getVanityNameFee(string memory vanityName)  public view returns (uint256) {
         return bytes(vanityName).length * FEE_AMOUNT_IN_WEI;
+    }
+
+    function getVanityNamesOf(address userAddress) public view returns (string[] memory) {
+        return _ownerOfNames[userAddress];
     }
 }
