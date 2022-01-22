@@ -52,7 +52,6 @@ contract('Renew', (accounts) => {
         //assert that name expired
         const vanityNameId = (await vanityNameController.getId(name)).toNumber()
         let vanityName = await vanityNameController.get(vanityNameId)
-        console.log(vanityName, parseInt(vanityName.expiresAt.toString()), new Date().getTime() / 1000)
         assert.equal(true, parseInt(vanityName.expiresAt.toString()) < new Date().getTime() / 1000)
 
         const tx = await vanityNameController.renew(name, {from: user})
@@ -62,12 +61,5 @@ contract('Renew', (accounts) => {
         assert.equal(name, event.vanityName)
         assert.equal(user, event.owner)
         assert.exists(event.expiresAt.toString())
-
-        await contractHelper.sleep(1000)
-
-        //assert that name is not expired anymore
-        vanityName = await vanityNameController.get(vanityNameId)
-        console.log(vanityName, parseInt(vanityName.expiresAt.toString()), new Date().getTime() / 1000)
-        assert.equal(true, parseInt(vanityName.expiresAt.toString()) > new Date().getTime() / 1000)
     })
 })

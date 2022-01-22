@@ -117,7 +117,7 @@ contract VanityNameController {
         VanityName storage vanityName = vanityNameStorage[id];
         vanityName.expiresAt = newEndTime;
 
-        emit VanityNameRenewed(nameToRenew, msg.sender, newEndTime);
+        emit VanityNameRenewed(nameToRenew, msg.sender, vanityName.expiresAt);
     }
 
     /** Getters **/
