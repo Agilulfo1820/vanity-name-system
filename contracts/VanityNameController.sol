@@ -40,7 +40,6 @@ contract VanityNameController is OwnableAndPausable {
     /** Events **/
     event NewVanityNameBought(string indexed vanityName, address owner, uint256 endTime);
 
-
     /** Smart contract functions **/
 
     //reserve function to avoid frontrunning
@@ -54,7 +53,7 @@ contract VanityNameController is OwnableAndPausable {
         _isNotPaused();
         require(!_exists(vanityName), "VanityNameController: vanity name already in use.");
 
-        uint256 memory fee = getFeeFor(vanityName);
+        uint256 fee = getFeeFor(vanityName);
         require(msg.value == fee, "VanityNameController: ETH sent are not enough to buy the vanity name.");
 
         //Save new vanity name
