@@ -16,8 +16,9 @@ contract('Withdraw', (accounts) => {
         const name = 'withdrawTest1'
 
         //buy name
+        const salt = await contractHelper.makeCommitment(vanityNameController, name, user)
         const fee = await vanityNameController.getFee(name)
-        await vanityNameController.buy(name, {from: user, value: fee.toString()})
+        await vanityNameController.buy(name, user, salt, {from: user, value: fee.toString()})
 
         await exceptionHelper.catchRevert(vanityNameController.withdrawFee(name))
     })
@@ -41,13 +42,14 @@ contract('Withdraw', (accounts) => {
         const name = 'correctWithdraw'
 
         //buy name
+        const salt = await contractHelper.makeCommitment(vanityNameController, name, user)
         const fee = await vanityNameController.getFee(name)
-        await vanityNameController.buy(name, {from: user, value: fee.toString()})
+        await vanityNameController.buy(name, user, salt,  {from: user, value: fee.toString()})
 
         const startingStakedBalance = await vanityNameController.getTotalStakedAmount(user)
 
         //let name expire
-        console.log('Waiting for vanity name to expire (you can set this period in .env)...')
+        console.log('Waiting for vanity name to expire (you can set this period in .env and at top of smart contract)...')
         await contractHelper.sleep(SUBSCRIPTION_PERIOD_DEV)
         const tx = await vanityNameController.withdrawFee(name, {from: user})
         const event = contractHelper.getEventFromTransaction(tx)

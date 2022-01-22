@@ -16,8 +16,9 @@ contract('Renew', (accounts) => {
         const user2 = accounts[2]
         const name = 'cool.eth'
 
+        const salt = await contractHelper.makeCommitment(vanityNameController, name, user)
         const fee = await vanityNameController.getFee(name)
-        await vanityNameController.buy(name, {from: user, value: fee.toString()})
+        await vanityNameController.buy(name, user, salt,  {from: user, value: fee.toString()})
 
         await exceptionHelper.catchRevert(vanityNameController.renew(name, {from: user2}))
     })
@@ -26,8 +27,9 @@ contract('Renew', (accounts) => {
         const user = accounts[1]
         const name = 'cool2.eth'
 
+        const salt = await contractHelper.makeCommitment(vanityNameController, name, user)
         const fee = await vanityNameController.getFee(name)
-        await vanityNameController.buy(name, {from: user, value: fee.toString()})
+        await vanityNameController.buy(name, user, salt, {from: user, value: fee.toString()})
 
         const tx = await vanityNameController.renew(name, {from: user})
         const event = contractHelper.getEventFromTransaction(tx)
@@ -42,11 +44,13 @@ contract('Renew', (accounts) => {
         const user = accounts[5]
         const name = 'cool3.eth'
 
+
+        const salt = await contractHelper.makeCommitment(vanityNameController, name, user)
         const fee = await vanityNameController.getFee(name)
-        await vanityNameController.buy(name, {from: user, value: fee.toString()})
+        await vanityNameController.buy(name, user, salt, {from: user, value: fee.toString()})
 
         //let name expire
-        console.log('Waiting for vanity name to expire (you can set this period in .env)...')
+        console.log('Waiting for vanity name to expire (you can set this period in .env and at top of smart contract)...')
         await contractHelper.sleep(SUBSCRIPTION_PERIOD_DEV)
 
         //assert that name expired
@@ -57,7 +61,7 @@ contract('Renew', (accounts) => {
 
         const tx = await vanityNameController.renew(name, {from: user})
         const event = contractHelper.getEventFromTransaction(tx)
-        
+
         //assert that event data is correct
         assert.equal(name, event.vanityName)
         assert.equal(user, event.owner)

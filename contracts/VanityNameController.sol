@@ -27,6 +27,7 @@ contract VanityNameController {
     mapping(string => address) owners;
     mapping(string => uint256) vanityNameIds;
     mapping(address => uint256) totalStakedBalance;
+    mapping(bytes32 => uint) public commitments;
 
     Counters.Counter counter;
 
@@ -50,16 +51,31 @@ contract VanityNameController {
     }
 
     /** Smart contract functions **/
-
-    //reserve function to avoid frontrunning
-    //user needs to pass his address, name,
-    function reserve() public {
-        //used to solve concurrency
-        uint256 timestamp = block.timestamp;
+    function makeCommitment(string memory name, address owner, bytes32 secret) public view returns (bytes32) {
+        //create new reservation
+        bytes32 label = keccak256(bytes(name));
+        return keccak256(abi.encodePacked(label, owner, secret));
     }
 
-    function buy(string memory vanityName) public payable {
+    function commit(bytes32 commitment) public {
+        require(commitments[commitment] < block.timestamp);
+        commitments[commitment] = block.timestamp;
+    }
+
+    function consumeCommitment(string memory name, bytes32 commitment) internal {
+        // Require a valid commitment
+        require(commitments[commitment] <= block.timestamp);
+
+        require(checkAvailability(name));
+
+        delete (commitments[commitment]);
+    }
+
+    function buy(string memory vanityName, address user, bytes32 secret) public payable {
         require(_expired(vanityName), "VanityNameController: vanity name already in use.");
+
+        bytes32 commitment = makeCommitment(vanityName, user, secret);
+        consumeCommitment(vanityName, commitment);
 
         uint256 fee = getFee(vanityName);
         require(msg.value >= fee, "VanityNameController: ETH sent are not enough to buy the vanity name.");
