@@ -1,8 +1,10 @@
 const VanityNameController = artifacts.require('VanityNameController')
 const exceptionHelper = require("./helpers/exceptionsHelpers.js")
 const contractHelper = require('./helpers/contractHelpers.js')
+const {ethers} = require("ethers")
+require('dotenv').config()
 
-const SUBSCRIPTION_PERIOD = 20*1000;
+const SUBSCRIPTION_PERIOD_DEV = process.env.SUBSCRIPTION_PERIOD_DEV
 
 contract('Buy Vanity Name', (accounts) => {
     let vanityNameController = null
@@ -58,24 +60,31 @@ contract('Buy Vanity Name', (accounts) => {
         assert.equal(false, isAvailable)
 
         //Wait until the renewal ends
-        //TODO: remember to reactivate
+        console.log('Waiting for vanity name to expire (you can set this period in .env)...')
+        await contractHelper.sleep(SUBSCRIPTION_PERIOD_DEV)
 
-        // console.log('Waiting 1.5 minutes for subscription to expire...')
-        // await contractHelper.sleep(SUBSCRIPTION_PERIOD)
-        //
-        // // isAvailable = await vanityNameController.checkAvailability(name)
-        // // console.log(isAvailable)
-        // // assert.equal(true, isAvailable)
-        //
-        // console.log(await vanityNameController.ownerOf(name))
-        //
-        // const user2 = accounts[2]
-        // const tx = await vanityNameController.buy(name, {from: user2, value: fee.toString()})
-        // const event = contractHelper.getEventFromTransaction(tx)
-        //
-        // assert.equal(user2, event.newOwner)
-        // assert.equal(name, event.vanityName)
-        // assert.exists(event.expiresAt.toString())
-        // assert.exists(event.fee.toString())
+        const user2 = accounts[2]
+        const tx = await vanityNameController.buy(name, {from: user2, value: fee.toString()})
+        const event = contractHelper.getEventFromTransaction(tx)
+
+        assert.equal(user2, event.newOwner)
+        assert.equal(name, event.vanityName)
+        assert.exists(event.expiresAt.toString())
+        assert.exists(event.fee.toString())
+    })
+
+    it("Fee should be successfully staked", async () => {
+        const user = accounts[3]
+        const name = 'stakeFeeTest'
+
+        const startingStakedBalance = await vanityNameController.getTotalStakedAmount(user)
+
+        //buy name
+        const fee = await vanityNameController.getFee(name)
+        await vanityNameController.buy(name, {from: user, value: fee.toString()})
+
+        const endingStakingBalance = await vanityNameController.getTotalStakedAmount(user)
+
+        assert.equal((startingStakedBalance.add(fee)).toString(), endingStakingBalance.toString())
     })
 })
