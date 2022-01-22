@@ -23,8 +23,8 @@ contract VanityNameController {
     VanityName[] vanityNameStorage;
 
     // Mapping from vanity name to owner address
-    mapping(string => address) _owners;
-    mapping(address => string[]) _ownerOfNames;
+    mapping(string => address) owners;
+    mapping(address => string[]) ownerOfNames;
 
     /** Events **/
     event NewBuy(string vanityName, address owner, uint256 endTime, uint256 fee);
@@ -32,7 +32,7 @@ contract VanityNameController {
 
     /** Internal functions and modifiers **/
     function _exists(string memory vanityName) internal view returns (bool) {
-        return _owners[vanityName] != address(0);
+        return owners[vanityName] != address(0);
     }
 
     /** Smart contract functions **/
@@ -56,21 +56,21 @@ contract VanityNameController {
         vanityNameStorage.push(vanityNameStruct);
 
         //Set owner
-        _owners[vanityName] = msg.sender;
-        _ownerOfNames[msg.sender].push(vanityName);
+        owners[vanityName] = msg.sender;
+        ownerOfNames[msg.sender].push(vanityName);
 
         emit NewBuy(vanityName, msg.sender, newEndTime, fee);
     }
 
     function ownerOf(string memory vanityName) public view returns (address) {
-        address owner = _owners[vanityName];
+        address owner = owners[vanityName];
         require(owner != address(0), "ownerOf: owner query for nonexistent vanity name");
         //TODO:Check the end_time
         return owner;
     }
 
     function checkAvailability(string memory vanityName) public view returns (bool) {
-        address owner = _owners[vanityName];
+        address owner = owners[vanityName];
         //TODO:Check the end_time
         if (owner != address(0)) {
             return false;
@@ -88,6 +88,6 @@ contract VanityNameController {
     }
 
     function getVanityNamesOf(address userAddress) public view returns (string[] memory) {
-        return _ownerOfNames[userAddress];
+        return ownerOfNames[userAddress];
     }
 }
