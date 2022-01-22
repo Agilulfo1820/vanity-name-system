@@ -2,7 +2,7 @@
 1. NodeJS
 2. NPM
 
-# Instructions for developing and deploying the smart contract:
+# Instructions
 
 ### Install the needed dependencies:
 ```

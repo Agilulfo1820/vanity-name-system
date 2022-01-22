@@ -4,7 +4,7 @@ const contractHelper = require('./helpers/contractHelpers.js')
 const truffleAssert = require('truffle-assertions');
 const { ethers } = require("ethers");
 
-const FEE_AMOUNT_IN_WEI = 100000000000;
+const FEE_AMOUNT_IN_WEI = 10000000000000000;
 
 contract('VanityNameController', (accounts) => {
     let vanityNameController = null
@@ -12,8 +12,8 @@ contract('VanityNameController', (accounts) => {
         vanityNameController = await VanityNameController.deployed()
     })
 
-    it('User should be able to see how much is fee', async () => {
-        const fee = await vanityNameController.getFeeFor('test')
+    it('User should be able to see fee for name', async () => {
+        const fee = await vanityNameController.getVanityNameFee('test')
         assert.exists(fee.toNumber())
     })
 
@@ -24,7 +24,7 @@ contract('VanityNameController', (accounts) => {
 
     it("User should be able to buy a name", async () => {
         const user = accounts[1]
-        const fee = await vanityNameController.getFeeFor('test')
+        const fee = await vanityNameController.getVanityNameFee('test')
         //create new token
 
         const tx = await vanityNameController.buy('test', { value: fee.toNumber() });

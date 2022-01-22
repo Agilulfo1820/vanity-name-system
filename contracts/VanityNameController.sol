@@ -10,8 +10,8 @@ contract VanityNameController {
     using Strings for uint256;
 
     /** Constants **/
-    uint256 internal constant SECONDS_IN_A_DAY = 86400;//time = block.timestamp % SECONDS_IN_A_DAY
-    uint256 internal constant FEE_AMOUNT_IN_WEI = 100000000000;
+    uint256 internal constant SECONDS_IN_A_DAY = 86400;
+    uint256 internal constant FEE_AMOUNT_IN_WEI = 10000000000000000;
 
     /** Data Structures and values **/
     struct VanityName {
@@ -24,6 +24,7 @@ contract VanityNameController {
 
     // Mapping from vanity name to owner address
     mapping(string => address) _owners;
+    //TODO:rimetterci quello che avevo tolto, ovvero l'inverso
 
     // TODO:Mi serve una roba più simile ai token di un certo brand, quindi una lista di nomi
 
@@ -48,8 +49,7 @@ contract VanityNameController {
     function buy(string memory vanityName) public payable {
         require(!_exists(vanityName), "VanityNameController: vanity name already in use.");
 
-        uint256 fee = getFeeFor(vanityName);
-        emit MessageValue(msg.value);
+        uint256 fee = getVanityNameFee(vanityName);
         require(msg.value >= fee, "VanityNameController: ETH sent are not enough to buy the vanity name.");
 
         //Save new vanity name
@@ -66,10 +66,25 @@ contract VanityNameController {
     function ownerOf(string memory vanityName) public view returns (address) {
         address owner = _owners[vanityName];
         require(owner != address(0), "ownerOf: owner query for nonexistent vanity name");
+        //TODO:Check the end_time
         return owner;
     }
 
-    function getFeeFor(string memory vanityName)  public view returns (uint256) {
+    function isAvailable(string memory vanityName) public view returns (bool) {
+        address owner = _owners[vanityName];
+        //TODO:Check the end_time
+        if (owner != address(0)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function getVanityNames() public view returns (VanityName[] memory) {
+        return vanityNameStorage;
+    }
+
+    function getVanityNameFee(string memory vanityName)  public view returns (uint256) {
         return bytes(vanityName).length * FEE_AMOUNT_IN_WEI;
     }
 }
