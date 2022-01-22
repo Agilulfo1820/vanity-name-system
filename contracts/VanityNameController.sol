@@ -12,15 +12,14 @@ contract VanityNameController {
     using Counters for Counters.Counter;
 
     /** Constants **/
-    uint256 internal constant SECONDS_IN_A_DAY = 86400;
     uint256 internal constant FEE_AMOUNT_IN_WEI = 10000000000000000;
+    uint256 internal constant SUBSCRIPTION_PERIOD = 3 minutes;
 
     /** Data Structures and values **/
     struct VanityName {
         uint256 id;
         string name;
         uint256 endTime;
-        address owner;
     }
 
     VanityName[] vanityNameStorage;
@@ -33,8 +32,7 @@ contract VanityNameController {
     Counters.Counter counter;
 
     /** Events **/
-    event NewBuy(string vanityName, address owner, uint256 endTime, uint256 fee);
-    event MessageValue(uint256 value);
+    event NewBuy(string vanityName, address newOwner, uint256 endTime, uint256 fee);
 
     /** Internal functions and modifiers **/
     function _exists(string memory vanityName) internal view returns (bool) {
@@ -47,7 +45,7 @@ contract VanityNameController {
         }
         uint256 id = vanityNameIds[vanityName];
 
-        return vanityNameStorage[id].endTime - block.timestamp > 0;
+        return vanityNameStorage[id].endTime >= block.timestamp;
     }
 
     /** Smart contract functions **/
@@ -66,14 +64,14 @@ contract VanityNameController {
         require(msg.value >= fee, "VanityNameController: ETH sent are not enough to buy the vanity name.");
 
         //Save new vanity name
-        uint256 newEndTime = block.timestamp + 365 days;
+        uint256 newEndTime = block.timestamp + SUBSCRIPTION_PERIOD;
 
         //If name was already registered previously then it already has an id, otherwise generate it
         if (!_exists(vanityName)) {
             uint256 id = counter.current();
             counter.increment();
 
-            VanityName memory vanityNameStruct = VanityName(id, vanityName, newEndTime, msg.sender);
+            VanityName memory vanityNameStruct = VanityName(id, vanityName, newEndTime);
             vanityNameStorage.push(vanityNameStruct);
 
             vanityNameIds[vanityName] = id;
@@ -86,6 +84,7 @@ contract VanityNameController {
         emit NewBuy(vanityName, msg.sender, newEndTime, fee);
     }
 
+    /** Getters **/
     function ownerOf(string memory vanityName) public view returns (address) {
         address owner = owners[vanityName];
         require(owner != address(0), "ownerOf: owner query for nonexistent vanity name");
@@ -96,15 +95,20 @@ contract VanityNameController {
 
     function checkAvailability(string memory vanityName) public view returns (bool) {
         address owner = owners[vanityName];
-        if (owner != address(0) || _vanityNameInUse(vanityName)) {
+        if (owner != address(0) && _vanityNameInUse(vanityName)) {
             return false;
         } else {
             return true;
         }
     }
 
-    function getVanityNames() public view returns (VanityName[] memory) {
+    function index() public view returns (VanityName[] memory) {
         return vanityNameStorage;
+    }
+
+    function show(string memory vanityName) public view returns (VanityName memory) {
+        uint256 id = getId(vanityName);
+        return vanityNameStorage[id];
     }
 
     function getFee(string memory vanityName) public view returns (uint256) {
@@ -115,7 +119,11 @@ contract VanityNameController {
         return ownerOfNames[userAddress];
     }
 
-    function getVanityNameId(string memory vanityName) public view returns (uint256) {
+    function getId(string memory vanityName) public view returns (uint256) {
         return vanityNameIds[vanityName];
+    }
+
+    function getVanityNameById(uint256 id) public view returns (VanityName memory) {
+        return vanityNameStorage[id];
     }
 }

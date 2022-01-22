@@ -3,6 +3,7 @@ const PREFIX = "Returned error: VM Exception while processing transaction: ";
 async function tryCatch(promise, message) {
     try {
         await promise;
+        console.log(promise)
         throw null;
     }
     catch (error) {
@@ -19,4 +20,5 @@ module.exports = {
     catchStackOverflow     : async function(promise) {await tryCatch(promise, "stack overflow"     );},
     catchStackUnderflow    : async function(promise) {await tryCatch(promise, "stack underflow"    );},
     catchStaticStateChange : async function(promise) {await tryCatch(promise, "static state change");},
+    catchVanityNameInUseRevert : async function(promise) {await tryCatch(promise, "VanityNameController: vanity name already in use.");},
 };
