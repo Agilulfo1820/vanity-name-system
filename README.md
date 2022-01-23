@@ -43,3 +43,7 @@ The following are the development steps:
 5. Verify the smart contract code on Etherscan with`truffle run verify VanityNameController --network rinkeby`.  
 
 To interact with the newly deployed smart contract you will need the ABI that you can find in `/build/contracts/` (search the json file with same name as your contract).
+
+# Deployed Addresses
+Addresses where the smart contract was deployed
+- [STAGING](https://rinkeby.etherscan.io/address/0x78d5F4097BA8761e85F8E7E2981B2Ce5a1c4C89c)
